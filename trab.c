@@ -234,22 +234,40 @@ void readMoviesFile(const char *filename, struct MovieArray *movies, size_t numM
 
 // Função para criar a clique de filmes de destaque dos artistas
 void createClique(struct ActorArray *actors, struct MovieArray *movies) {
-    size_t i;
+    size_t i, j;
     for (i = 0; i < actors->size; i++) {
         struct Node *movie1 = actors->array[i].movies;
         while (movie1 != NULL) {
             struct Node *movie2 = movie1->next;
             while (movie2 != NULL) {
-                if (movie1->movieID < movies->size && movie2->movieID < movies->size) {
+                int movie1Index = -1;
+                int movie2Index = -1;
+                
+                // Encontra os índices dos filmes no array de filmes
+                for (j = 0; j < movies->size; j++) {
+                    if (movies->array[j].id == movie1->movieID) {
+                        movie1Index = j;
+                    }
+                    if (movies->array[j].id == movie2->movieID) {
+                        movie2Index = j;
+                    }
+                }
+
+                printf("Tentando criar conexão entre filme %d e filme %d\n", movie1->movieID, movie2->movieID); // Depuração
+
+                // Se ambos os filmes foram encontrados no array de filmes
+                if (movie1Index != -1 && movie2Index != -1) {
+                    printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
+
                     // Adiciona movie2 como vizinho de movie1
                     struct Node *newNode1 = (struct Node *)malloc(sizeof(struct Node));
                     if (newNode1 == NULL) {
                         fprintf(stderr, "Erro ao alocar memória para o nó de vizinho\n");
                         exit(EXIT_FAILURE);
                     }
-                    newNode1->movieID = movie2->movieID;
-                    newNode1->next = movies->array[movie1->movieID].neighbors;
-                    movies->array[movie1->movieID].neighbors = newNode1;
+                    newNode1->movieID = movie2Index;
+                    newNode1->next = movies->array[movie1Index].neighbors;
+                    movies->array[movie1Index].neighbors = newNode1;
 
                     // Adiciona movie1 como vizinho de movie2
                     struct Node *newNode2 = (struct Node *)malloc(sizeof(struct Node));
@@ -257,9 +275,13 @@ void createClique(struct ActorArray *actors, struct MovieArray *movies) {
                         fprintf(stderr, "Erro ao alocar memória para o nó de vizinho\n");
                         exit(EXIT_FAILURE);
                     }
-                    newNode2->movieID = movie1->movieID;
-                    newNode2->next = movies->array[movie2->movieID].neighbors;
-                    movies->array[movie2->movieID].neighbors = newNode2;
+                    newNode2->movieID = movie1Index;
+                    newNode2->next = movies->array[movie2Index].neighbors;
+                    movies->array[movie2Index].neighbors = newNode2;
+
+                    printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
+                } else {
+                    printf("Filmes não encontrados: %d e %d\n", movie1->movieID, movie2->movieID); // Depuração
                 }
                 movie2 = movie2->next;
             }
