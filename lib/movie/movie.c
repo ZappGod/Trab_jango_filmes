@@ -121,7 +121,7 @@ void readMoviesFile(const char *filename, MovieArray *movies, size_t numMovies)
     movie.neighbors = NULL;
 
     insertMovieArray(movies, movie);
-    printf("Filme lido: %s\n", movie.title); // Mensagem de depuração
+    // printf("Filme lido: %s\n", movie.title); // Mensagem de depuração
 
     moviesRead++;
   }
