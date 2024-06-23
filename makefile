@@ -20,3 +20,4 @@ sergio: main.c lib/actor/actor.h lib/movie/movie.h lib/avl/avl.h lib/node/node.h
 
 clean:
 	rm -rf *.o *~ sergio
+	
