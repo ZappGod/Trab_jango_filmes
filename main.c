@@ -189,7 +189,7 @@ int main()
         insert(&avl_head, (&movies)->array[i].id, i);
     }
 
-    visit(avl_head);
+    // visit(avl_head);
 
     // createClick_arr(&actors, &movies);
     createClick_avl(&actors, &movies, avl_head);
