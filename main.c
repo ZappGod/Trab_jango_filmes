@@ -43,7 +43,7 @@ void createClick_arr(ActorArray *actors, MovieArray *movies)
                 // Se ambos os filmes foram encontrados no array de filmes
                 if (movie1Index != -1 && movie2Index != -1)
                 {
-                    printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
+                    // printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
 
                     // Adiciona movie2 como vizinho de movie1
                     Node *newNode1 = createNode();
@@ -58,7 +58,7 @@ void createClick_arr(ActorArray *actors, MovieArray *movies)
                     newNode2->next = movies->array[movie2Index].neighbors;
                     movies->array[movie2Index].neighbors = newNode2;
 
-                    printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
+                    // printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
                 }
                 else
                 {
@@ -70,7 +70,7 @@ void createClick_arr(ActorArray *actors, MovieArray *movies)
             movie1 = movie1->next;
         }
     }
-    printf("Cliques criadas.\n"); // Mensagem de depuração
+    // printf("Cliques criadas.\n"); // Mensagem de depuração
 }
 
 bool verify_edge(Movie *movie1, int movie2index)
@@ -156,7 +156,7 @@ void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
             movie1 = movie1->next;
         }
     }
-    printf("Cliques criadas.\n"); // Mensagem de depuração
+    // printf("Cliques criadas.\n"); // Mensagem de depuração
 }
 
 // Função para imprimir o grafo no formato DOT
@@ -187,7 +187,7 @@ void printGraphDOT(MovieArray *movies, const char *filename)
 
     fprintf(file, "}\n");
     fclose(file);
-    printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
+    // printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
 }
 
 int main()
@@ -209,11 +209,12 @@ int main()
     }
 
     // visit(avl_head);
+    // visit(avl_head);
 
     // createClick_arr(&actors, &movies);
     createClick_avl(&actors, &movies, avl_head);
 
-    printGraphDOT(&movies, "./data/graph.dot");
+    printGraphDOT(&movies, "./data/input.dot");
 
     freeActorArray(&actors);
     freeMovieArray(&movies);
