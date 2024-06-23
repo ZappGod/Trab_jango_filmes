@@ -73,7 +73,20 @@ void createClick_arr(ActorArray *actors, MovieArray *movies)
     printf("Cliques criadas.\n"); // Mensagem de depuração
 }
 
-bool verifica();
+bool verify_edge(Movie *movie1, int movie2index)
+{
+    Node *neighbor = movie1->neighbors;
+    while (neighbor != NULL)
+    {
+        if (neighbor->movieID == movie2index)
+        {
+            return true;
+        }
+        neighbor = neighbor->next;
+    }
+
+    return false;
+};
 
 void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
 {
@@ -110,23 +123,29 @@ void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
                 // Se ambos os filmes foram encontrados no array de filmes
                 if (movie1Index != -1 && movie2Index != -1)
                 {
-                    printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
+                    // printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
 
-                    // Adiciona movie2 como vizinho de movie1
-                    Node *newNode1 = createNode();
+                    bool edge_exists = verify_edge(&movies->array[movie1Index], movie2Index);
 
-                    newNode1->movieID = movie2Index;
-                    newNode1->next = movies->array[movie1Index].neighbors;
-                    movies->array[movie1Index].neighbors = newNode1;
+                    if (!edge_exists)
+                    {
+                        // Adiciona movie2 como vizinho de movie1
+                        Node *newNode1 = createNode();
 
-                    // Adiciona movie1 como vizinho de movie2
-                    Node *newNode2 = createNode();
-                    newNode2->movieID = movie1Index;
-                    newNode2->next = movies->array[movie2Index].neighbors;
-                    movies->array[movie2Index].neighbors = newNode2;
+                        newNode1->movieID = movie2Index;
+                        newNode1->next = movies->array[movie1Index].neighbors;
+                        movies->array[movie1Index].neighbors = newNode1;
 
-                    printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
+                        // Adiciona movie1 como vizinho de movie2
+                        Node *newNode2 = createNode();
+                        newNode2->movieID = movie1Index;
+                        newNode2->next = movies->array[movie2Index].neighbors;
+                        movies->array[movie2Index].neighbors = newNode2;
+
+                        // printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
+                    }
                 }
+
                 else
                 {
                     // printf("Filmes não encontrados: %d e %d\n", movie1->movieID, movie2->movieID); // Depuração
@@ -175,11 +194,11 @@ int main()
 {
     ActorArray actors;
     initActorArray(&actors, 10);
-    readActorsFile("./assets/name.basics.tsv", &actors, 200000);
+    readActorsFile("./assets/name.basics.tsv", &actors, 50000);
 
     MovieArray movies;
     initMovieArray(&movies, 10);
-    readMoviesFile("./assets/title.basics.tsv", &movies, 200000);
+    readMoviesFile("./assets/title.basics.tsv", &movies, 50000);
 
     Avl_node *avl_head = NULL;
 
@@ -189,7 +208,7 @@ int main()
         insert(&avl_head, (&movies)->array[i].id, i);
     }
 
-    visit(avl_head);
+    // visit(avl_head);
 
     // createClick_arr(&actors, &movies);
     createClick_avl(&actors, &movies, avl_head);

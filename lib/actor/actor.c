@@ -99,7 +99,7 @@ void readActorsFile(const char *filename, ActorArray *actors, size_t numActors)
     }
 
     insertActorArray(actors, actor);
-    printf("Ator lido: %s\n", actor.name); // Mensagem de depuração
+    // printf("Ator lido: %s\n", actor.name); // Mensagem de depuração
 
     actorsRead++;
   }
