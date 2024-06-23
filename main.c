@@ -209,7 +209,6 @@ int main()
     }
 
     // visit(avl_head);
-    // visit(avl_head);
 
     // createClick_arr(&actors, &movies);
     createClick_avl(&actors, &movies, avl_head);
