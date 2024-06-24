@@ -8,6 +8,8 @@
 #include "./lib/movie/movie.h"
 #include "./lib/avl/avl.h"
 
+#define ROWS_LIMIT 55000
+
 // Função para criar a clique de filmes de destaque dos artistas
 void createClick_arr(ActorArray *actors, MovieArray *movies)
 {
@@ -190,23 +192,28 @@ void printGraphDOT(MovieArray *movies, const char *filename)
     printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
 }
 
+void fill_avl_tree(Avl_node **avl_head, MovieArray *movies)
+{
+    size_t i;
+    for (i = 0; i < movies->size; i++)
+    {
+        insert(avl_head, movies->array[i].id, i);
+    }
+}
+
 int main()
 {
     ActorArray actors;
     initActorArray(&actors, 10);
-    readActorsFile("./assets/name.basics.tsv", &actors, 50000);
+    readActorsFile("./assets/name.basics.tsv", &actors, ROWS_LIMIT);
 
     MovieArray movies;
     initMovieArray(&movies, 10);
-    readMoviesFile("./assets/title.basics.tsv", &movies, 50000);
+    readMoviesFile("./assets/title.basics.tsv", &movies, ROWS_LIMIT);
 
     Avl_node *avl_head = NULL;
 
-    size_t i;
-    for (i = 0; i < (&movies)->size; i++)
-    {
-        insert(&avl_head, (&movies)->array[i].id, i);
-    }
+    fill_avl_tree(&avl_head, &movies);
 
     // visit(avl_head);
 
