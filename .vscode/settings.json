@@ -5,6 +5,7 @@
     "stdio.h": "c",
     "stdlib.h": "c",
     "actor.h": "c",
-    "movie.h": "c"
+    "movie.h": "c",
+    "string": "c"
   }
 }

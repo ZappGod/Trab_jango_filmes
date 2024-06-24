@@ -2,19 +2,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "./lib/node/node.h"
 #include "./lib/actor/actor.h"
 #include "./lib/movie/movie.h"
 #include "./lib/avl/avl.h"
 
-#define ROWS_LIMIT 50000
+#define ROWS_LIMIT 250000
 
 void createClick_arr(ActorArray *actors, MovieArray *movies);
 bool verify_edge(Movie *movie1, int movie2index);
 void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl);
 void printGraphDOT(MovieArray *movies, const char *filename);
 void fill_avl_tree(Avl_node **avl_head, MovieArray *movies);
+
+void searchById(Avl_node *avl_head, MovieArray *movies, int id);
+void searchByActor(ActorArray *actors, MovieArray *movies, int id);
 
 int main()
 {
@@ -34,6 +38,40 @@ int main()
     createClick_avl(&actors, &movies, avl_head);
 
     printGraphDOT(&movies, "./data/input.dot");
+
+    int menu;
+    int id_search;
+    int id_actor_search;
+
+    printf("\n");
+
+    while (menu != 0)
+    {
+        printf("1. Buscar filme por ID\n");
+        printf("2. Buscar filme por ator\n");
+        printf("0. Sair\n");
+        printf("-> ");
+        scanf("%d", &menu);
+        printf("\n");
+
+        switch (menu)
+        {
+        case 1:
+            printf("Digite o id do filme: ");
+            scanf("%d", &id_search);
+            printf("\n");
+            searchById(avl_head, &movies, id_search);
+            break;
+        case 2:
+            printf("Digite o ID do ator: ");
+            scanf("%d", &id_actor_search);
+            searchByActor(&actors, &movies, id_actor_search);
+            break;
+
+        default:
+            break;
+        }
+    }
 
     freeActorArray(&actors);
     freeMovieArray(&movies);
@@ -166,6 +204,65 @@ void printGraphDOT(MovieArray *movies, const char *filename)
     fprintf(file, "}\n");
     fclose(file);
     printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
+}
+
+void searchById(Avl_node *avl_head, MovieArray *movies, int id)
+{
+    int movieIndex = -1;
+
+    Avl_node *movie_avl = search(&avl_head, id);
+
+    if (movie_avl == NULL)
+    {
+        printf("Filme não encontrado!\n\n");
+        return;
+    }
+
+    movieIndex = movie_avl->index;
+    Movie movie = movies->array[movieIndex];
+
+    if (!movie.id)
+    {
+        printf("Ocorreu algum erro!\n");
+        return;
+    }
+
+    printf("Título: %s\n", movie.title);
+
+    Node *neighbor = movie.neighbors;
+    while (neighbor != NULL)
+    {
+        printf("Filme associado: %s\n", movies->array[neighbor->movieID].title);
+        neighbor = neighbor->next;
+    }
+    printf("\n\n");
+}
+
+void searchByActor(ActorArray *actors, MovieArray *movies, int id)
+{
+    size_t i;
+    for (i = 0; i < actors->size; i++)
+    {
+        if (actors->array[i].id == id)
+        {
+            printf("Nome do ator: %s\n", actors->array[i].name);
+            Node *current_movie = actors->array[i].movies;
+
+            if (current_movie->movieID >= ROWS_LIMIT)
+            {
+                printf("Nenhum filme encontrado\n\n");
+                return;
+            }
+
+            while (current_movie != NULL)
+            {
+                printf("Filmes: %s\n", movies->array[current_movie->movieID].title);
+                current_movie = current_movie->next;
+            }
+            printf("\n");
+            return;
+        }
+    }
 }
 
 // Função para criar a clique de filmes de destaque dos artistas (usando Array)
