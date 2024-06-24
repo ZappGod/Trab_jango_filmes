@@ -197,7 +197,7 @@ Avl_node *search(Avl_node **n, int id)
 {
 	if (!(*n))
 	{
-		return;
+		return NULL;
 	}
 
 	if (id < (*n)->id)

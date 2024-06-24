@@ -106,14 +106,14 @@ void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
 
                 Avl_node *movie1_avl = search(&avl, movie1->movieID);
 
-                if (movie1_avl)
+                if (movie1_avl != NULL)
                 {
                     movie1Index = movie1_avl->index;
                 }
 
                 Avl_node *movie2_avl = search(&avl, movie2->movieID);
 
-                if (movie2_avl)
+                if (movie2_avl != NULL)
                 {
                     movie2Index = movie2_avl->index;
                 }
@@ -156,7 +156,7 @@ void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
             movie1 = movie1->next;
         }
     }
-    // printf("Cliques criadas.\n"); // Mensagem de depuração
+    printf("Cliques criadas.\n"); // Mensagem de depuração
 }
 
 // Função para imprimir o grafo no formato DOT
@@ -187,7 +187,7 @@ void printGraphDOT(MovieArray *movies, const char *filename)
 
     fprintf(file, "}\n");
     fclose(file);
-    // printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
+    printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
 }
 
 int main()
