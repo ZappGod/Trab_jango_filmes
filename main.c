@@ -8,71 +8,46 @@
 #include "./lib/movie/movie.h"
 #include "./lib/avl/avl.h"
 
-#define ROWS_LIMIT 55000
+#define ROWS_LIMIT 50000
 
-// Função para criar a clique de filmes de destaque dos artistas
-void createClick_arr(ActorArray *actors, MovieArray *movies)
+void createClick_arr(ActorArray *actors, MovieArray *movies);
+bool verify_edge(Movie *movie1, int movie2index);
+void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl);
+void printGraphDOT(MovieArray *movies, const char *filename);
+void fill_avl_tree(Avl_node **avl_head, MovieArray *movies);
+
+int main()
 {
-    size_t i, j;
+    ActorArray actors;
+    initActorArray(&actors, 10);
+    readActorsFile("./assets/name.basics.tsv", &actors, ROWS_LIMIT);
 
-    for (i = 0; i < actors->size; i++)
+    MovieArray movies;
+    initMovieArray(&movies, 10);
+    readMoviesFile("./assets/title.basics.tsv", &movies, ROWS_LIMIT);
+
+    Avl_node *avl_head = NULL;
+
+    fill_avl_tree(&avl_head, &movies);
+
+    // createClick_arr(&actors, &movies);
+    createClick_avl(&actors, &movies, avl_head);
+
+    printGraphDOT(&movies, "./data/input.dot");
+
+    freeActorArray(&actors);
+    freeMovieArray(&movies);
+
+    return 0;
+}
+
+void fill_avl_tree(Avl_node **avl_head, MovieArray *movies)
+{
+    size_t i;
+    for (i = 0; i < movies->size; i++)
     {
-        Node *movie1 = actors->array[i].movies;
-
-        while (movie1 != NULL)
-        {
-            Node *movie2 = movie1->next;
-            while (movie2 != NULL)
-            {
-                int movie1Index = -1;
-                int movie2Index = -1;
-
-                // Encontra os índices dos filmes no array de filmes
-                for (j = 0; j < movies->size; j++)
-                {
-                    if (movies->array[j].id == movie1->movieID)
-                    {
-                        movie1Index = j;
-                    }
-                    if (movies->array[j].id == movie2->movieID)
-                    {
-                        movie2Index = j;
-                    }
-                }
-
-                // printf("Tentando criar conexão entre filme %d e filme %d\n", movie1->movieID, movie2->movieID); // Depuração
-
-                // Se ambos os filmes foram encontrados no array de filmes
-                if (movie1Index != -1 && movie2Index != -1)
-                {
-                    // printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
-
-                    // Adiciona movie2 como vizinho de movie1
-                    Node *newNode1 = createNode();
-
-                    newNode1->movieID = movie2Index;
-                    newNode1->next = movies->array[movie1Index].neighbors;
-                    movies->array[movie1Index].neighbors = newNode1;
-
-                    // Adiciona movie1 como vizinho de movie2
-                    Node *newNode2 = createNode();
-                    newNode2->movieID = movie1Index;
-                    newNode2->next = movies->array[movie2Index].neighbors;
-                    movies->array[movie2Index].neighbors = newNode2;
-
-                    // printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
-                }
-                else
-                {
-                    // printf("Filmes não encontrados: %d e %d\n", movie1->movieID, movie2->movieID); // Depuração
-                }
-
-                movie2 = movie2->next;
-            }
-            movie1 = movie1->next;
-        }
+        insert(avl_head, movies->array[i].id, i);
     }
-    // printf("Cliques criadas.\n"); // Mensagem de depuração
 }
 
 bool verify_edge(Movie *movie1, int movie2index)
@@ -90,6 +65,7 @@ bool verify_edge(Movie *movie1, int movie2index)
     return false;
 };
 
+// Função para criar a clique de filmes de destaque dos artistas (usando AVL)
 void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
 {
     size_t i, j;
@@ -161,7 +137,7 @@ void createClick_avl(ActorArray *actors, MovieArray *movies, Avl_node *avl)
     printf("Cliques criadas.\n"); // Mensagem de depuração
 }
 
-// Função para imprimir o grafo no formato DOT
+// Função para criar arquivo de grafo
 void printGraphDOT(MovieArray *movies, const char *filename)
 {
     FILE *file = fopen(filename, "w");
@@ -192,38 +168,67 @@ void printGraphDOT(MovieArray *movies, const char *filename)
     printf("Arquivo DOT criado: %s\n", filename); // Mensagem de depuração
 }
 
-void fill_avl_tree(Avl_node **avl_head, MovieArray *movies)
+// Função para criar a clique de filmes de destaque dos artistas (usando Array)
+void createClick_arr(ActorArray *actors, MovieArray *movies)
 {
-    size_t i;
-    for (i = 0; i < movies->size; i++)
+    size_t i, j;
+
+    for (i = 0; i < actors->size; i++)
     {
-        insert(avl_head, movies->array[i].id, i);
+        Node *movie1 = actors->array[i].movies;
+
+        while (movie1 != NULL)
+        {
+            Node *movie2 = movie1->next;
+            while (movie2 != NULL)
+            {
+                int movie1Index = -1;
+                int movie2Index = -1;
+
+                // Encontra os índices dos filmes no array de filmes
+                for (j = 0; j < movies->size; j++)
+                {
+                    if (movies->array[j].id == movie1->movieID)
+                    {
+                        movie1Index = j;
+                    }
+                    if (movies->array[j].id == movie2->movieID)
+                    {
+                        movie2Index = j;
+                    }
+                }
+
+                // printf("Tentando criar conexão entre filme %d e filme %d\n", movie1->movieID, movie2->movieID); // Depuração
+
+                // Se ambos os filmes foram encontrados no array de filmes
+                if (movie1Index != -1 && movie2Index != -1)
+                {
+                    // printf("Filmes encontrados: %s e %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Depuração
+
+                    // Adiciona movie2 como vizinho de movie1
+                    Node *newNode1 = createNode();
+
+                    newNode1->movieID = movie2Index;
+                    newNode1->next = movies->array[movie1Index].neighbors;
+                    movies->array[movie1Index].neighbors = newNode1;
+
+                    // Adiciona movie1 como vizinho de movie2
+                    Node *newNode2 = createNode();
+                    newNode2->movieID = movie1Index;
+                    newNode2->next = movies->array[movie2Index].neighbors;
+                    movies->array[movie2Index].neighbors = newNode2;
+
+                    // printf("Conexão criada: %s -- %s\n", movies->array[movie1Index].title, movies->array[movie2Index].title); // Mensagem de depuração
+                }
+                else
+                {
+                    // printf("Filmes não encontrados: %d e %d\n", movie1->movieID, movie2->movieID); // Depuração
+                }
+
+                movie2 = movie2->next;
+            }
+            movie1 = movie1->next;
+        }
     }
-}
-
-int main()
-{
-    ActorArray actors;
-    initActorArray(&actors, 10);
-    readActorsFile("./assets/name.basics.tsv", &actors, ROWS_LIMIT);
-
-    MovieArray movies;
-    initMovieArray(&movies, 10);
-    readMoviesFile("./assets/title.basics.tsv", &movies, ROWS_LIMIT);
-
-    Avl_node *avl_head = NULL;
-
-    fill_avl_tree(&avl_head, &movies);
-
-    // visit(avl_head);
-
-    // createClick_arr(&actors, &movies);
-    createClick_avl(&actors, &movies, avl_head);
-
-    printGraphDOT(&movies, "./data/input.dot");
-
-    freeActorArray(&actors);
-    freeMovieArray(&movies);
-
-    return 0;
+    // printf("Cliques criadas.\n"); // Mensagem de depuração
 }
